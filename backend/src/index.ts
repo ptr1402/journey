@@ -1,13 +1,13 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
+import express, { Express, Request, Response } from "express";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3500;
 
-app.get('/', (_req: Request, res: Response) => {
-  res.send('Express + TypeScript configuration');
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Express + TypeScript configuration");
 });
 
 app.listen(port, () => {
