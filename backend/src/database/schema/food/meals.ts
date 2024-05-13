@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   serial,
   varchar,
@@ -5,6 +6,8 @@ import {
   pgTable,
   integer,
 } from "drizzle-orm/pg-core";
+import { mealProducts } from "./mealProducts";
+import { users } from "../user";
 
 export const meals = pgTable("meals", {
   id: serial("id").primaryKey(),
@@ -13,6 +16,17 @@ export const meals = pgTable("meals", {
     mode: "date",
     withTimezone: false,
   }).defaultNow(),
-  userId: integer("userId"),
-  createdBy: integer("createdBy"),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const mealsRelations = relations(meals, ({ one, many }) => {
+  return {
+    mealProducts: many(mealProducts),
+    user: one(users, {
+      fields: [meals.userId],
+      references: [users.id],
+    }),
+  };
 });

@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   serial,
@@ -6,6 +7,7 @@ import {
   real,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { mealProducts } from "./mealProducts";
 
 export const portionSizeEnum = pgEnum("portionSize", [
   "100g",
@@ -19,7 +21,7 @@ export const portionSizeEnum = pgEnum("portionSize", [
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 32 }).notNull(),
-  portionSize: portionSizeEnum("portionSize").default("100g"),
+  portionSize: portionSizeEnum("portionSize").notNull().default("100g"),
   kcalPerPortion: real("kcalPerPortion").default(0).notNull(),
   protPerPortion: real("protPerPortion").default(0).notNull(),
   carbPerPortion: real("carbPerPortion").default(0).notNull(),
@@ -29,4 +31,8 @@ export const products = pgTable("products", {
     withTimezone: false,
   }).defaultNow(),
   updatedAt: timestamp("updatedAt"),
+});
+
+export const productsRelations = relations(products, ({ many }) => {
+  return { mealProducts: many(mealProducts) };
 });

@@ -8,6 +8,8 @@ import {
   real,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { users } from "./users";
 
 export const genderEnum = pgEnum("gender", [
   "female",
@@ -28,5 +30,16 @@ export const profiles = pgTable("profiles", {
     withTimezone: false,
   }).defaultNow(),
   updatedAt: timestamp("updatedAt"),
-  userId: integer("userId"),
+  userId: integer("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const profilesRelations = relations(profiles, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [profiles.userId],
+      references: [users.id],
+    }),
+  };
 });

@@ -1,4 +1,16 @@
+import { relations } from "drizzle-orm";
 import { text, timestamp, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { profiles } from "./profiles";
+import { goals } from "./goals";
+import {
+  groups,
+  invitations,
+  joinRequests,
+  likes,
+  posts,
+  usersToGroups,
+} from "../community";
+import { meals } from "../food";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -11,3 +23,15 @@ export const users = pgTable("users", {
   }).defaultNow(),
   updatedAt: timestamp("updatedAt"),
 });
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+  profile: one(profiles),
+  goal: one(goals),
+  managingGroups: many(groups),
+  usersToGroups: many(usersToGroups),
+  invitations: many(invitations),
+  joinRequests: many(joinRequests),
+  posts: many(posts),
+  meals: many(meals),
+  likes: many(likes),
+}));
