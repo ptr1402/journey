@@ -29,7 +29,7 @@ export const posts = pgTable(
   },
   (table) => {
     return {
-      titleIdx: index("titleIndex").on(table.title),
+      postTitleIdx: index("postTitleIndex").on(table.title),
     };
   }
 );

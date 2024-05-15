@@ -25,7 +25,7 @@ export const meals = pgTable(
   },
   (table) => {
     return {
-      nameIdx: index("nameIndex").on(table.name),
+      mealNameIdx: index("mealNameIndex").on(table.name),
     };
   }
 );
