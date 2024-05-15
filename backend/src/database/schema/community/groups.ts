@@ -33,7 +33,7 @@ export const groups = pgTable(
   },
   (table) => {
     return {
-      nameIdx: index("nameIndex").on(table.name),
+      groupNameIdx: index("groupNameIndex").on(table.name),
     };
   }
 );
