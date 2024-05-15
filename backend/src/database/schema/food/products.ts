@@ -6,6 +6,7 @@ import {
   pgEnum,
   real,
   timestamp,
+  index,
 } from "drizzle-orm/pg-core";
 import { mealProducts } from "./mealProducts";
 
@@ -18,20 +19,28 @@ export const portionSizeEnum = pgEnum("portionSize", [
   "1tea-spoon",
 ]);
 
-export const products = pgTable("products", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 32 }).notNull(),
-  portionSize: portionSizeEnum("portionSize").notNull().default("100g"),
-  kcalPerPortion: real("kcalPerPortion").default(0).notNull(),
-  protPerPortion: real("protPerPortion").default(0).notNull(),
-  carbPerPortion: real("carbPerPortion").default(0).notNull(),
-  fatPerPortion: real("fatPerPortion").default(0).notNull(),
-  createdAt: timestamp("createdAt", {
-    mode: "date",
-    withTimezone: false,
-  }).defaultNow(),
-  updatedAt: timestamp("updatedAt"),
-});
+export const products = pgTable(
+  "products",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 32 }).notNull(),
+    portionSize: portionSizeEnum("portionSize").notNull().default("100g"),
+    kcalPerPortion: real("kcalPerPortion").default(0).notNull(),
+    protPerPortion: real("protPerPortion").default(0).notNull(),
+    carbPerPortion: real("carbPerPortion").default(0).notNull(),
+    fatPerPortion: real("fatPerPortion").default(0).notNull(),
+    createdAt: timestamp("createdAt", {
+      mode: "date",
+      withTimezone: false,
+    }).defaultNow(),
+    updatedAt: timestamp("updatedAt"),
+  },
+  (table) => {
+    return {
+      nameIdx: index("nameIndex").on(table.name),
+    };
+  }
+);
 
 export const productsRelations = relations(products, ({ many }) => {
   return { mealProducts: many(mealProducts) };
