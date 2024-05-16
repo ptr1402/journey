@@ -13,6 +13,9 @@ export const likes = pgTable("likes", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
+export type Like = typeof likes.$inferSelect;
+export type NewLike = typeof likes.$inferInsert;
+
 export const likesRelations = relations(likes, ({ one }) => {
   return {
     post: one(posts, {

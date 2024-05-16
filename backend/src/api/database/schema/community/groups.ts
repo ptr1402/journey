@@ -38,6 +38,9 @@ export const groups = pgTable(
   }
 );
 
+export type Group = typeof groups.$inferSelect;
+export type NewGroup = typeof groups.$inferInsert;
+
 export const groupsRelations = relations(groups, ({ one, many }) => {
   return {
     manager: one(users, {

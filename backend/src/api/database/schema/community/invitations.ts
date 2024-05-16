@@ -27,6 +27,9 @@ export const invitations = pgTable("invites", {
     .references(() => groups.id),
 });
 
+export type Invitation = typeof invitations.$inferSelect;
+export type NewInvitation = typeof invitations.$inferInsert;
+
 export const invitationsRelations = relations(invitations, ({ one }) => {
   return {
     invitee: one(users, {

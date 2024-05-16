@@ -24,6 +24,9 @@ export const usersToGroups = pgTable(
   }
 );
 
+export type UsersToGroups = typeof usersToGroups.$inferSelect;
+export type NewUsersToGroups = typeof usersToGroups.$inferInsert;
+
 export const usersToGroupsRelations = relations(usersToGroups, ({ one }) => {
   return {
     user: one(users, {

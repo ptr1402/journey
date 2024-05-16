@@ -35,6 +35,9 @@ export const profiles = pgTable("profiles", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
+export type Profile = typeof profiles.$inferSelect;
+export type NewProfile = typeof profiles.$inferInsert;
+
 export const profilesRelations = relations(profiles, ({ one }) => {
   return {
     user: one(users, {

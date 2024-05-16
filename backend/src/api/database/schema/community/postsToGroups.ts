@@ -20,6 +20,9 @@ export const postsToGroups = pgTable(
   }
 );
 
+export type PostsToGroups = typeof postsToGroups.$inferSelect;
+export type NewPostsToGroups = typeof postsToGroups.$inferInsert;
+
 export const postsToGroupsRelations = relations(postsToGroups, ({ one }) => {
   return {
     group: one(groups, {

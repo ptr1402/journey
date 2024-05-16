@@ -21,6 +21,9 @@ export const mealProducts = pgTable("mealProducts", {
     }),
 });
 
+export type MealProduct = typeof mealProducts.$inferSelect;
+export type NewMealProduct = typeof mealProducts.$inferInsert;
+
 export const mealProductsRelations = relations(mealProducts, ({ one }) => {
   return {
     product: one(products, {
