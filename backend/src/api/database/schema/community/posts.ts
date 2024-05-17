@@ -8,11 +8,11 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "../user";
-import { postsToGroups } from "./postsToGroups";
-import { likes } from "./likes";
+import { usersTable } from "../user";
+import { postsToGroupsTable } from "./postsToGroups";
+import { likesTable } from "./likes";
 
-export const posts = pgTable(
+export const postsTable = pgTable(
   "posts",
   {
     id: serial("id").primaryKey(),
@@ -25,7 +25,7 @@ export const posts = pgTable(
     editedAt: timestamp("editedAt", { mode: "date", withTimezone: false }),
     authorId: integer("users")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => usersTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return {
@@ -34,16 +34,16 @@ export const posts = pgTable(
   }
 );
 
-export type SelectPost = typeof posts.$inferSelect;
-export type InsertPost = typeof posts.$inferInsert;
+export type SelectPost = typeof postsTable.$inferSelect;
+export type InsertPost = typeof postsTable.$inferInsert;
 
-export const postsRelations = relations(posts, ({ one, many }) => {
+export const postsRelations = relations(postsTable, ({ one, many }) => {
   return {
-    author: one(users, {
-      fields: [posts.authorId],
-      references: [users.id],
+    author: one(usersTable, {
+      fields: [postsTable.authorId],
+      references: [usersTable.id],
     }),
-    postsToGroups: many(postsToGroups),
-    likes: many(likes),
+    postsToGroups: many(postsToGroupsTable),
+    likes: many(likesTable),
   };
 });

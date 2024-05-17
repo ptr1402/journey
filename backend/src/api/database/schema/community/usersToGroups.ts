@@ -1,9 +1,9 @@
 import { pgTable, primaryKey, timestamp, integer } from "drizzle-orm/pg-core";
-import { groups } from "./groups";
-import { users } from "../user";
+import { groupsTable } from "./groups";
+import { usersTable } from "../user";
 import { relations } from "drizzle-orm";
 
-export const usersToGroups = pgTable(
+export const usersToGroupsTable = pgTable(
   "usersToGroups",
   {
     userAddedAt: timestamp("userAddedAt", {
@@ -12,10 +12,10 @@ export const usersToGroups = pgTable(
     }).defaultNow(),
     userId: integer("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => usersTable.id, { onDelete: "cascade" }),
     groupId: integer("groupId")
       .notNull()
-      .references(() => groups.id, { onDelete: "cascade" }),
+      .references(() => groupsTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return {
@@ -24,18 +24,21 @@ export const usersToGroups = pgTable(
   }
 );
 
-export type SelectUserToGroup = typeof usersToGroups.$inferSelect;
-export type InsertUserToGroup = typeof usersToGroups.$inferInsert;
+export type SelectUserToGroup = typeof usersToGroupsTable.$inferSelect;
+export type InsertUserToGroup = typeof usersToGroupsTable.$inferInsert;
 
-export const usersToGroupsRelations = relations(usersToGroups, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [usersToGroups.userId],
-      references: [users.id],
-    }),
-    group: one(groups, {
-      fields: [usersToGroups.groupId],
-      references: [groups.id],
-    }),
-  };
-});
+export const usersToGroupsRelations = relations(
+  usersToGroupsTable,
+  ({ one }) => {
+    return {
+      user: one(usersTable, {
+        fields: [usersToGroupsTable.userId],
+        references: [usersTable.id],
+      }),
+      group: one(groupsTable, {
+        fields: [usersToGroupsTable.groupId],
+        references: [groupsTable.id],
+      }),
+    };
+  }
+);

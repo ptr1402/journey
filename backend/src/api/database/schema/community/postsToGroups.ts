@@ -1,17 +1,17 @@
 import { pgTable, integer, primaryKey } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { groups } from "./groups";
-import { posts } from "./posts";
+import { groupsTable } from "./groups";
+import { postsTable } from "./posts";
 
-export const postsToGroups = pgTable(
+export const postsToGroupsTable = pgTable(
   "groupsPosts",
   {
     groupId: integer("groupId")
       .notNull()
-      .references(() => groups.id, { onDelete: "cascade" }),
+      .references(() => groupsTable.id, { onDelete: "cascade" }),
     postId: integer("postId")
       .notNull()
-      .references(() => posts.id, { onDelete: "cascade" }),
+      .references(() => postsTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return {
@@ -20,18 +20,21 @@ export const postsToGroups = pgTable(
   }
 );
 
-export type SelectPostToGroup = typeof postsToGroups.$inferSelect;
-export type InsertPostToGroup = typeof postsToGroups.$inferInsert;
+export type SelectPostToGroup = typeof postsToGroupsTable.$inferSelect;
+export type InsertPostToGroup = typeof postsToGroupsTable.$inferInsert;
 
-export const postsToGroupsRelations = relations(postsToGroups, ({ one }) => {
-  return {
-    group: one(groups, {
-      fields: [postsToGroups.groupId],
-      references: [groups.id],
-    }),
-    post: one(posts, {
-      fields: [postsToGroups.postId],
-      references: [posts.id],
-    }),
-  };
-});
+export const postsToGroupsRelations = relations(
+  postsToGroupsTable,
+  ({ one }) => {
+    return {
+      group: one(groupsTable, {
+        fields: [postsToGroupsTable.groupId],
+        references: [groupsTable.id],
+      }),
+      post: one(postsTable, {
+        fields: [postsToGroupsTable.postId],
+        references: [postsTable.id],
+      }),
+    };
+  }
+);

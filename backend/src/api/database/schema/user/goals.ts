@@ -1,8 +1,8 @@
 import { pgTable, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./users";
+import { usersTable } from "./users";
 
-export const goals = pgTable("goals", {
+export const goalsTable = pgTable("goals", {
   id: serial("id").primaryKey(),
   dailyKcalGoal: integer("dailyKcalGoal"),
   dailyProteinGoal: integer("dailyProteinGoal"),
@@ -15,17 +15,17 @@ export const goals = pgTable("goals", {
   updatedAt: timestamp("updatedAt"),
   userId: integer("userId")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
-export type SelectGoal = typeof goals.$inferSelect;
-export type InsertGoal = typeof goals.$inferInsert;
+export type SelectGoal = typeof goalsTable.$inferSelect;
+export type InsertGoal = typeof goalsTable.$inferInsert;
 
-export const goalsRelations = relations(goals, ({ one }) => {
+export const goalsRelations = relations(goalsTable, ({ one }) => {
   return {
-    user: one(users, {
-      fields: [goals.userId],
-      references: [users.id],
+    user: one(usersTable, {
+      fields: [goalsTable.userId],
+      references: [usersTable.id],
     }),
   };
 });

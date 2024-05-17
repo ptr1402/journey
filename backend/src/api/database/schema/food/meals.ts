@@ -7,10 +7,10 @@ import {
   integer,
   index,
 } from "drizzle-orm/pg-core";
-import { mealProducts } from "./mealProducts";
-import { users } from "../user";
+import { mealProductsTable } from "./mealProducts";
+import { usersTable } from "../user";
 
-export const meals = pgTable(
+export const mealsTable = pgTable(
   "meals",
   {
     id: serial("id").primaryKey(),
@@ -21,7 +21,7 @@ export const meals = pgTable(
     }).defaultNow(),
     userId: integer("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => usersTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return {
@@ -30,15 +30,15 @@ export const meals = pgTable(
   }
 );
 
-export type SelectMeal = typeof meals.$inferSelect;
-export type InsertMeal = typeof meals.$inferInsert;
+export type SelectMeal = typeof mealsTable.$inferSelect;
+export type InsertMeal = typeof mealsTable.$inferInsert;
 
-export const mealsRelations = relations(meals, ({ one, many }) => {
+export const mealsRelations = relations(mealsTable, ({ one, many }) => {
   return {
-    mealProducts: many(mealProducts),
-    user: one(users, {
-      fields: [meals.userId],
-      references: [users.id],
+    mealProducts: many(mealProductsTable),
+    user: one(usersTable, {
+      fields: [mealsTable.userId],
+      references: [usersTable.id],
     }),
   };
 });

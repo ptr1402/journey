@@ -1,10 +1,10 @@
 import { pgTable, serial, timestamp, integer } from "drizzle-orm/pg-core";
 import { statusEnum } from "./invitations";
-import { users } from "../user";
-import { groups } from "./groups";
+import { usersTable } from "../user";
+import { groupsTable } from "./groups";
 import { relations } from "drizzle-orm";
 
-export const joinRequests = pgTable("joinRequests", {
+export const joinRequestsTable = pgTable("joinRequests", {
   id: serial("id").primaryKey(),
   status: statusEnum("status").default("pending"),
   createdAt: timestamp("createdAt", {
@@ -14,24 +14,24 @@ export const joinRequests = pgTable("joinRequests", {
   resolvedAt: timestamp("resolvedAt"),
   requesterId: integer("requesterId")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   groupId: integer("groupId")
     .notNull()
-    .references(() => groups.id, { onDelete: "cascade" }),
+    .references(() => groupsTable.id, { onDelete: "cascade" }),
 });
 
-export type SelectJoinRequest = typeof joinRequests.$inferSelect;
-export type InsertJoinRequest = typeof joinRequests.$inferInsert;
+export type SelectJoinRequest = typeof joinRequestsTable.$inferSelect;
+export type InsertJoinRequest = typeof joinRequestsTable.$inferInsert;
 
-export const joinRequestsRelations = relations(joinRequests, ({ one }) => {
+export const joinRequestsRelations = relations(joinRequestsTable, ({ one }) => {
   return {
-    requester: one(users, {
-      fields: [joinRequests.requesterId],
-      references: [users.id],
+    requester: one(usersTable, {
+      fields: [joinRequestsTable.requesterId],
+      references: [usersTable.id],
     }),
-    group: one(groups, {
-      fields: [joinRequests.groupId],
-      references: [groups.id],
+    group: one(groupsTable, {
+      fields: [joinRequestsTable.groupId],
+      references: [groupsTable.id],
     }),
   };
 });

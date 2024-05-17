@@ -6,12 +6,12 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "../user";
-import { groups } from "./groups";
+import { usersTable } from "../user";
+import { groupsTable } from "./groups";
 
 export const statusEnum = pgEnum("status", ["pending", "declined", "accepted"]);
 
-export const invitations = pgTable("invites", {
+export const invitationsTable = pgTable("invites", {
   id: serial("id").primaryKey(),
   status: statusEnum("status").default("pending").notNull(),
   createdAt: timestamp("createdAt", {
@@ -21,24 +21,24 @@ export const invitations = pgTable("invites", {
   resolvedAt: timestamp("resolvedAt"),
   inviteeId: integer("inviteeId")
     .notNull()
-    .references(() => users.id),
+    .references(() => usersTable.id),
   groupId: integer("groupId")
     .notNull()
-    .references(() => groups.id),
+    .references(() => groupsTable.id),
 });
 
-export type SelectInvitation = typeof invitations.$inferSelect;
-export type InsertInvitation = typeof invitations.$inferInsert;
+export type SelectInvitation = typeof invitationsTable.$inferSelect;
+export type InsertInvitation = typeof invitationsTable.$inferInsert;
 
-export const invitationsRelations = relations(invitations, ({ one }) => {
+export const invitationsRelations = relations(invitationsTable, ({ one }) => {
   return {
-    invitee: one(users, {
-      fields: [invitations.inviteeId],
-      references: [users.id],
+    invitee: one(usersTable, {
+      fields: [invitationsTable.inviteeId],
+      references: [usersTable.id],
     }),
-    group: one(groups, {
-      fields: [invitations.groupId],
-      references: [groups.id],
+    group: one(groupsTable, {
+      fields: [invitationsTable.groupId],
+      references: [groupsTable.id],
     }),
   };
 });
