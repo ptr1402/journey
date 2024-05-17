@@ -30,8 +30,8 @@ export const meals = pgTable(
   }
 );
 
-export type Meal = typeof meals.$inferSelect;
-export type NewMeal = typeof meals.$inferInsert;
+export type SelectMeal = typeof meals.$inferSelect;
+export type InsertMeal = typeof meals.$inferInsert;
 
 export const mealsRelations = relations(meals, ({ one, many }) => {
   return {

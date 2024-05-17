@@ -20,8 +20,8 @@ export const joinRequests = pgTable("joinRequests", {
     .references(() => groups.id, { onDelete: "cascade" }),
 });
 
-export type JoinRequest = typeof joinRequests.$inferSelect;
-export type NewJoinRequest = typeof joinRequests.$inferInsert;
+export type SelectJoinRequest = typeof joinRequests.$inferSelect;
+export type InsertJoinRequest = typeof joinRequests.$inferInsert;
 
 export const joinRequestsRelations = relations(joinRequests, ({ one }) => {
   return {

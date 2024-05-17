@@ -34,8 +34,8 @@ export const posts = pgTable(
   }
 );
 
-export type Post = typeof posts.$inferSelect;
-export type NewPost = typeof posts.$inferInsert;
+export type SelectPost = typeof posts.$inferSelect;
+export type InsertPost = typeof posts.$inferInsert;
 
 export const postsRelations = relations(posts, ({ one, many }) => {
   return {

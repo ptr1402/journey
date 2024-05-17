@@ -18,8 +18,8 @@ export const goals = pgTable("goals", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
-export type Goal = typeof goals.$inferSelect;
-export type NewGoal = typeof goals.$inferInsert;
+export type SelectGoal = typeof goals.$inferSelect;
+export type InsertGoal = typeof goals.$inferInsert;
 
 export const goalsRelations = relations(goals, ({ one }) => {
   return {

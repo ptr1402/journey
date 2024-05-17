@@ -42,8 +42,8 @@ export const products = pgTable(
   }
 );
 
-export type Product = typeof products.$inferSelect;
-export type NewProduct = typeof products.$inferInsert;
+export type SelectProduct = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
 
 export const productsRelations = relations(products, ({ many }) => {
   return { mealProducts: many(mealProducts) };
