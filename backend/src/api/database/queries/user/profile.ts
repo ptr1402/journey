@@ -25,7 +25,7 @@ export async function getProfileByIdDb(
     .limit(1);
 }
 
-export async function getProfileByUserId(
+export async function getProfileByUserIdDb(
   userId: SelectUser["id"]
 ): Promise<SelectProfile[]> {
   return db
