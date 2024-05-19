@@ -32,7 +32,8 @@ export const profilesTable = pgTable("profiles", {
   updatedAt: timestamp("updatedAt"),
   userId: integer("userId")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .unique(),
 });
 
 export type SelectProfile = typeof profilesTable.$inferSelect;
