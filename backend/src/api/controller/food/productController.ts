@@ -4,13 +4,68 @@ import {
   createProductDb,
   deleteProductDb,
   getProductByIdDb,
+  getProductsByNameDb,
   getProductsDb,
   updateProductDb,
 } from "../../database/queries/food/product";
 
-export async function getProducts(_req: Request, res: Response) {
+function validateProduct(product: InsertProduct): string[] {
+  const errors: string[] = [];
+
+  if (
+    !product?.name ||
+    typeof product.name !== "string" ||
+    product.name.length > 32
+  ) {
+    errors.push("Invalid name");
+  }
+
+  if (
+    !product?.kcalPerPortion ||
+    typeof product.kcalPerPortion !== "number" ||
+    product.kcalPerPortion < 0
+  ) {
+    errors.push("Invalid calories");
+  }
+
+  if (
+    !product?.protPerPortion ||
+    typeof product.protPerPortion !== "number" ||
+    product.protPerPortion < 0
+  ) {
+    errors.push("Invalid proteins");
+  }
+
+  if (
+    !product?.carbPerPortion ||
+    typeof product.carbPerPortion !== "number" ||
+    product.carbPerPortion < 0
+  ) {
+    errors.push("Invalid carbs");
+  }
+
+  if (
+    !product?.fatPerPortion ||
+    typeof product.fatPerPortion !== "number" ||
+    product.fatPerPortion < 0
+  ) {
+    errors.push("Invalid fats");
+  }
+
+  return errors;
+}
+
+export async function getProducts(req: Request, res: Response) {
   try {
-    const products: SelectProduct[] = await getProductsDb();
+    let products: SelectProduct[];
+    const name: string = req.query.name as string;
+
+    if (name) {
+      const searchName: string = "%" + name + "%";
+      products = await getProductsByNameDb(searchName);
+    } else {
+      products = await getProductsDb();
+    }
     return res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching products: ", error);
@@ -36,7 +91,7 @@ export async function getProductById(req: Request, res: Response) {
     return res.status(201).json(product);
   } catch (error) {
     console.error(`Error fetching product with id= ${id}`, error);
-    return res.json(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 }
 
@@ -44,47 +99,7 @@ export async function createProduct(req: Request, res: Response) {
   try {
     const product: InsertProduct = req.body;
 
-    const errors: string[] = [];
-
-    if (
-      !product?.name ||
-      typeof product.name !== "string" ||
-      product.name.length > 32
-    ) {
-      errors.push("Invalid name");
-    }
-
-    if (
-      !product?.kcalPerPortion ||
-      typeof product.kcalPerPortion !== "number" ||
-      product.kcalPerPortion < 0
-    ) {
-      errors.push("Invalid calories");
-    }
-
-    if (
-      !product?.protPerPortion ||
-      typeof product.protPerPortion !== "number" ||
-      product.protPerPortion < 0
-    ) {
-      errors.push("Invalid proteins");
-    }
-
-    if (
-      !product?.carbPerPortion ||
-      typeof product.carbPerPortion !== "number" ||
-      product.carbPerPortion < 0
-    ) {
-      errors.push("Invalid carbs");
-    }
-
-    if (
-      !product?.fatPerPortion ||
-      typeof product.fatPerPortion !== "number" ||
-      product.fatPerPortion < 0
-    ) {
-      errors.push("Invalid fats");
-    }
+    const errors: string[] = validateProduct(product);
 
     if (errors.length > 0) {
       return res.status(400).json({ errors });
