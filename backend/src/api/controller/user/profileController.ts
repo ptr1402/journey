@@ -1,14 +1,14 @@
 import { type Request, type Response } from "express";
 import { InsertProfile, SelectProfile } from "../../database/schema";
-import { getUserByIdDb } from "../../database/queries/user/user";
 import {
   createProfileDb,
   deleteProfileDb,
   getProfileByIdDb,
-  getProfileByUserId,
+  getProfileByUserIdDb,
   getProfilesDb,
   updateProfileDb,
 } from "../../database/queries/user/profile";
+import { validUser } from "../utils/user";
 
 function validateProfile(profileData: InsertProfile): string[] {
   const errors: string[] = [];
@@ -53,7 +53,7 @@ export async function getProfiles(req: Request, res: Response) {
         return res.status(400).json({ error: "Invalid userId." });
       }
 
-      const profile: SelectProfile[] = await getProfileByUserId(user);
+      const profile: SelectProfile[] = await getProfileByUserIdDb(user);
 
       if (profile.length === 0) {
         return res
@@ -97,16 +97,7 @@ export async function createProfile(req: Request, res: Response) {
   try {
     const profileData: InsertProfile = req.body;
 
-    const errors: string[] = [];
-
-    if (!profileData.userId || isNaN(profileData.userId)) {
-      errors.push("Invalid userId");
-    } else {
-      const user = await getUserByIdDb(profileData.userId);
-      if (!user || user.length === 0) {
-        errors.push(`User with userId=${profileData.userId} not found.`);
-      }
-    }
+    const errors: string[] = await validUser(profileData.userId);
 
     if (errors.length > 0) {
       return res.status(400).json({ errors });

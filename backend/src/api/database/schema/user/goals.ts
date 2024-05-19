@@ -7,7 +7,7 @@ export const goalsTable = pgTable("goals", {
   dailyKcalGoal: integer("dailyKcalGoal"),
   dailyProteinGoal: integer("dailyProteinGoal"),
   dailyCarbsGoal: integer("dailyCarbsGoal"),
-  dailyFatsgoal: integer("dailyFatsGoal"),
+  dailyFatsGoal: integer("dailyFatsGoal"),
   createdAt: timestamp("createdAt", {
     mode: "date",
     withTimezone: false,
@@ -15,7 +15,8 @@ export const goalsTable = pgTable("goals", {
   updatedAt: timestamp("updatedAt"),
   userId: integer("userId")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .unique(),
 });
 
 export type SelectGoal = typeof goalsTable.$inferSelect;
