@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { db } from "../../config/databaseConfig";
 import { InsertProduct, SelectProduct, productsTable } from "../../schema";
 
@@ -14,6 +14,16 @@ export async function getProductByIdDb(
     .from(productsTable)
     .where(eq(productsTable.id, id))
     .limit(1);
+}
+
+export async function getProductsByNameDb(
+  name: string
+): Promise<SelectProduct[]> {
+  return db
+    .select()
+    .from(productsTable)
+    .where(ilike(productsTable.name, name))
+    .limit(5);
 }
 
 export async function createProductDb(product: InsertProduct) {

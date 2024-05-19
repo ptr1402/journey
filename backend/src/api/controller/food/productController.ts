@@ -4,6 +4,7 @@ import {
   createProductDb,
   deleteProductDb,
   getProductByIdDb,
+  getProductsByNameDb,
   getProductsDb,
   updateProductDb,
 } from "../../database/queries/food/product";
@@ -54,9 +55,17 @@ function validateProduct(product: InsertProduct): string[] {
   return errors;
 }
 
-export async function getProducts(_req: Request, res: Response) {
+export async function getProducts(req: Request, res: Response) {
   try {
-    const products: SelectProduct[] = await getProductsDb();
+    let products: SelectProduct[];
+    const name: string = req.query.name as string;
+
+    if (name) {
+      const searchName: string = "%" + name + "%";
+      products = await getProductsByNameDb(searchName);
+    } else {
+      products = await getProductsDb();
+    }
     return res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching products: ", error);
