@@ -91,7 +91,7 @@ export async function getProductById(req: Request, res: Response) {
     return res.status(201).json(product);
   } catch (error) {
     console.error(`Error fetching product with id= ${id}`, error);
-    return res.json(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 }
 

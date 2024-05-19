@@ -77,7 +77,7 @@ export async function getGoals(req: Request, res: Response) {
     return res.status(200).json(goals);
   } catch (error) {
     console.error("Error fetching profiles: ", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error." });
   }
 }
 
@@ -120,7 +120,7 @@ export async function createGoal(req: Request, res: Response) {
 
     await createGoalDb(goalData);
 
-    return res.status(201).send("Goal created successfully.");
+    return res.status(201).json({ message: "Goal created successfully." });
   } catch (error) {
     console.error("Error creating goal: ", error);
     return res.status(500).json({ error: "Internal server error." });
@@ -163,13 +163,13 @@ export async function deleteGoal(req: Request, res: Response) {
     const id: SelectGoal["id"] = parseInt(req.params.goalId, 10);
 
     if (isNaN(id)) {
-      return res.status(400).json({ message: "Invalid goalId" });
+      return res.status(400).json({ error: "Invalid goalId" });
     }
 
     const goal = await getGoalByIdDb(id);
 
     if (goal?.length === 0) {
-      return res.status(400).json({ message: `No goal with goalId=${id}` });
+      return res.status(400).json({ error: `No goal with goalId=${id}` });
     }
 
     await deleteGoalDb(id);
@@ -179,6 +179,6 @@ export async function deleteGoal(req: Request, res: Response) {
       .json({ message: `Goal with id=${id} was deleted successfully` });
   } catch (error) {
     console.error("Error deleting goal: ", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
