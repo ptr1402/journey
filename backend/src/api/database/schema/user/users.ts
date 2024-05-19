@@ -7,19 +7,19 @@ import {
   varchar,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles";
-import { goals } from "./goals";
+import { profilesTable } from "./profiles";
+import { goalsTable } from "./goals";
 import {
-  groups,
-  invitations,
-  joinRequests,
-  likes,
-  posts,
-  usersToGroups,
+  groupsTable,
+  invitationsTable,
+  joinRequestsTable,
+  likesTable,
+  postsTable,
+  usersToGroupsTable,
 } from "../community";
-import { meals } from "../food";
+import { mealsTable } from "../food";
 
-export const users = pgTable(
+export const usersTable = pgTable(
   "users",
   {
     id: serial("id").primaryKey(),
@@ -35,18 +35,22 @@ export const users = pgTable(
   (table) => {
     return {
       emailIdx: uniqueIndex("emailIndex").on(table.email),
+      usernameIdx: uniqueIndex("usernameIndex").on(table.username),
     };
   }
 );
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-  profile: one(profiles),
-  goal: one(goals),
-  managingGroups: many(groups),
-  usersToGroups: many(usersToGroups),
-  invitations: many(invitations),
-  joinRequests: many(joinRequests),
-  posts: many(posts),
-  meals: many(meals),
-  likes: many(likes),
+export type SelectUser = typeof usersTable.$inferSelect;
+export type InsertUser = typeof usersTable.$inferInsert;
+
+export const usersRelations = relations(usersTable, ({ one, many }) => ({
+  profile: one(profilesTable),
+  goal: one(goalsTable),
+  managingGroups: many(groupsTable),
+  usersToGroups: many(usersToGroupsTable),
+  invitations: many(invitationsTable),
+  joinRequests: many(joinRequestsTable),
+  posts: many(postsTable),
+  meals: many(mealsTable),
+  likes: many(likesTable),
 }));

@@ -8,13 +8,13 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "../user";
-import { usersToGroups } from "./usersToGroups";
-import { invitations } from "./invitations";
-import { joinRequests } from "./joinRequests";
-import { postsToGroups } from "./postsToGroups";
+import { usersTable } from "../user";
+import { usersToGroupsTable } from "./usersToGroups";
+import { invitationsTable } from "./invitations";
+import { joinRequestsTable } from "./joinRequests";
+import { postsToGroupsTable } from "./postsToGroups";
 
-export const groups = pgTable(
+export const groupsTable = pgTable(
   "groups",
   {
     id: serial("id").primaryKey(),
@@ -27,7 +27,7 @@ export const groups = pgTable(
     updatedAt: timestamp("updatedAt"),
     manager: integer("manager")
       .notNull()
-      .references(() => users.id, {
+      .references(() => usersTable.id, {
         onDelete: "cascade",
       }),
   },
@@ -38,15 +38,18 @@ export const groups = pgTable(
   }
 );
 
-export const groupsRelations = relations(groups, ({ one, many }) => {
+export type SelectGroup = typeof groupsTable.$inferSelect;
+export type InsertGroup = typeof groupsTable.$inferInsert;
+
+export const groupsRelations = relations(groupsTable, ({ one, many }) => {
   return {
-    manager: one(users, {
-      fields: [groups.manager],
-      references: [users.id],
+    manager: one(usersTable, {
+      fields: [groupsTable.manager],
+      references: [usersTable.id],
     }),
-    usersToGroups: many(usersToGroups),
-    invitations: many(invitations),
-    joinRequests: many(joinRequests),
-    postsToGroups: many(postsToGroups),
+    usersToGroups: many(usersToGroupsTable),
+    invitations: many(invitationsTable),
+    joinRequests: many(joinRequestsTable),
+    postsToGroups: many(postsToGroupsTable),
   };
 });

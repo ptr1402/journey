@@ -1,27 +1,30 @@
 import { pgTable, serial, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { posts } from "./posts";
-import { users } from "../user";
+import { postsTable } from "./posts";
+import { usersTable } from "../user";
 
-export const likes = pgTable("likes", {
+export const likesTable = pgTable("likes", {
   id: serial("id").primaryKey(),
   postId: integer("postId")
     .notNull()
-    .references(() => posts.id, { onDelete: "cascade" }),
+    .references(() => postsTable.id, { onDelete: "cascade" }),
   userId: integer("userId")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
-export const likesRelations = relations(likes, ({ one }) => {
+export type SelectLike = typeof likesTable.$inferSelect;
+export type InsertLike = typeof likesTable.$inferInsert;
+
+export const likesRelations = relations(likesTable, ({ one }) => {
   return {
-    post: one(posts, {
-      fields: [likes.postId],
-      references: [posts.id],
+    post: one(postsTable, {
+      fields: [likesTable.postId],
+      references: [postsTable.id],
     }),
-    user: one(users, {
-      fields: [likes.userId],
-      references: [users.id],
+    user: one(usersTable, {
+      fields: [likesTable.userId],
+      references: [usersTable.id],
     }),
   };
 });

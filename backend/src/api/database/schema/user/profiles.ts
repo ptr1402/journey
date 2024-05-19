@@ -9,7 +9,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./users";
+import { usersTable } from "./users";
 
 export const genderEnum = pgEnum("gender", [
   "female",
@@ -18,7 +18,7 @@ export const genderEnum = pgEnum("gender", [
   "not-mention",
 ]);
 
-export const profiles = pgTable("profiles", {
+export const profilesTable = pgTable("profiles", {
   id: serial("id").primaryKey(),
   birthday: date("birthday"),
   gender: genderEnum("gender"),
@@ -32,14 +32,18 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updatedAt"),
   userId: integer("userId")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .unique(),
 });
 
-export const profilesRelations = relations(profiles, ({ one }) => {
+export type SelectProfile = typeof profilesTable.$inferSelect;
+export type InsertProfile = typeof profilesTable.$inferInsert;
+
+export const profilesRelations = relations(profilesTable, ({ one }) => {
   return {
-    user: one(users, {
-      fields: [profiles.userId],
-      references: [users.id],
+    user: one(usersTable, {
+      fields: [profilesTable.userId],
+      references: [usersTable.id],
     }),
   };
 });

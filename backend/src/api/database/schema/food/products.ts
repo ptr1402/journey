@@ -6,9 +6,9 @@ import {
   pgEnum,
   real,
   timestamp,
-  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { mealProducts } from "./mealProducts";
+import { mealProductsTable } from "./mealProducts";
 
 export const portionSizeEnum = pgEnum("portionSize", [
   "100g",
@@ -19,7 +19,7 @@ export const portionSizeEnum = pgEnum("portionSize", [
   "1tea-spoon",
 ]);
 
-export const products = pgTable(
+export const productsTable = pgTable(
   "products",
   {
     id: serial("id").primaryKey(),
@@ -37,11 +37,14 @@ export const products = pgTable(
   },
   (table) => {
     return {
-      productNameIdx: index("productNameIndex").on(table.name),
+      productNameIdx: uniqueIndex("productNameIndex").on(table.name),
     };
   }
 );
 
-export const productsRelations = relations(products, ({ many }) => {
-  return { mealProducts: many(mealProducts) };
+export type SelectProduct = typeof productsTable.$inferSelect;
+export type InsertProduct = typeof productsTable.$inferInsert;
+
+export const productsRelations = relations(productsTable, ({ many }) => {
+  return { mealProducts: many(mealProductsTable) };
 });
