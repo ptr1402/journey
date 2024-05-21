@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { InsertGoal, SelectGoal } from "../../database/schema";
-import { validUser } from "../utils/user";
+import { validUser } from "../utils/validation";
 import {
   createGoalDb,
   deleteGoalDb,

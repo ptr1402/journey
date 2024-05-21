@@ -8,7 +8,7 @@ import {
   getProfilesDb,
   updateProfileDb,
 } from "../../database/queries/user/profile";
-import { validUser } from "../utils/user";
+import { validUser } from "../utils/validation";
 
 function validateProfile(profileData: InsertProfile): string[] {
   const errors: string[] = [];
