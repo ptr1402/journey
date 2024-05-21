@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { InsertMeal, SelectMeal } from "../../database/schema";
-import { validUser } from "../utils/user";
+import { validUser } from "../utils/validation";
 import {
   createMealDb,
   deleteMealDb,

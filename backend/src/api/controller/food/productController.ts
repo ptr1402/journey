@@ -177,7 +177,7 @@ export async function deleteProduct(req: Request, res: Response) {
     const id: SelectProduct["id"] = parseInt(req.params.productId, 10);
 
     if (isNaN(id)) {
-      return res.status(400).json({ message: "Invalid productId" });
+      return res.status(400).json({ error: "Invalid productId" });
     }
 
     const product = await getProductByIdDb(id);
@@ -193,6 +193,6 @@ export async function deleteProduct(req: Request, res: Response) {
       .json({ message: `Product with id=${id} was deleted successfully` });
   } catch (error) {
     console.error("Error deleting product: ", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error." });
   }
 }
