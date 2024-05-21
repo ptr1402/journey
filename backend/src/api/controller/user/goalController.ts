@@ -76,7 +76,7 @@ export async function getGoals(req: Request, res: Response) {
     const goals: SelectGoal[] = await getGoalsDb();
     return res.status(200).json(goals);
   } catch (error) {
-    console.error("Error fetching profiles: ", error);
+    console.error("Error fetching goals: ", error);
     return res.status(500).json({ error: "Internal server error." });
   }
 }
