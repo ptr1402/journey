@@ -2,14 +2,8 @@ import { InsertUser, SelectUser, usersTable } from "../../schema";
 import { db } from "../../config/databaseConfig";
 import { eq } from "drizzle-orm";
 
-export async function createUserDb(
-  user: InsertUser
-): Promise<InsertUser["id"]> {
-  const [createdUser] = await db
-    .insert(usersTable)
-    .values(user)
-    .returning({ id: usersTable.id });
-  return createdUser.id;
+export async function createUserDb(user: InsertUser) {
+  await db.insert(usersTable).values(user);
 }
 
 export async function getUsersDb(): Promise<
@@ -77,15 +71,9 @@ export async function getUserByUsernameDb(
 export async function updateUserDb(
   id: SelectUser["id"],
   data: Partial<Omit<SelectUser, "id">>
-): Promise<InsertUser["id"]> {
+) {
   data.updatedAt = new Date();
-  const [updatedUser] = await db
-    .update(usersTable)
-    .set(data)
-    .where(eq(usersTable.id, id))
-    .returning({ id: usersTable.id });
-
-  return updatedUser.id;
+  await db.update(usersTable).set(data).where(eq(usersTable.id, id));
 }
 
 export async function deleteUserDb(id: SelectUser["id"]) {

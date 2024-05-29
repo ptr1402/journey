@@ -8,7 +8,7 @@ import {
   getProfilesDb,
   updateProfileDb,
 } from "../../database/queries/user/profile";
-import { validUser } from "../utils/validation";
+import { validProfile, validUser } from "../utils/validation";
 
 function validateProfile(profileData: InsertProfile): string[] {
   const errors: string[] = [];
@@ -100,12 +100,12 @@ export async function createProfile(req: Request, res: Response) {
     const errors: string[] = await validUser(profileData.userId);
 
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      return res.status(400).json({ error: errors });
     }
 
     const dataErrors: string[] = validateProfile(profileData);
     if (dataErrors.length > 0) {
-      return res.status(400).json({ dataErrors });
+      return res.status(400).json({ error: dataErrors });
     }
 
     await createProfileDb(profileData);
@@ -125,11 +125,9 @@ export async function updateProfile(req: Request, res: Response) {
       return res.status(400).json({ error: "Invalid profile ID." });
     }
 
-    const existingProfile = await getProfileByIdDb(profileId);
-    if (!existingProfile || existingProfile.length === 0) {
-      return res
-        .status(404)
-        .json({ error: `Profile not found for profileId=${profileId}` });
+    const existingProfileErrors: string[] = await validProfile(profileId);
+    if (existingProfileErrors.length > 0) {
+      return res.status(400).json({ error: existingProfileErrors });
     }
 
     const profileData: Partial<Omit<SelectProfile, "id">> = req.body;
@@ -141,7 +139,7 @@ export async function updateProfile(req: Request, res: Response) {
 
     await updateProfileDb(profileId, profileData);
 
-    return res.status(200).json({ message: "Profile updated successfully." });
+    return res.status(201).json({ message: "Profile updated successfully." });
   } catch (error) {
     console.error("Error updating profile:", error);
     return res.status(500).json({ error: "Internal server error." });
@@ -156,12 +154,9 @@ export async function deleteProfile(req: Request, res: Response) {
       return res.status(400).json({ message: "Invalid profileId" });
     }
 
-    const profile = await getProfileByIdDb(id);
-
-    if (profile?.length === 0) {
-      return res
-        .status(400)
-        .json({ message: `No profile with profileId=${id}` });
+    const existingProfileErrors: string[] = await validProfile(id);
+    if (existingProfileErrors.length > 0) {
+      return res.status(404).json({ error: existingProfileErrors });
     }
 
     await deleteProfileDb(id);

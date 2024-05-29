@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { InsertGoal, SelectGoal } from "../../database/schema";
-import { validUser } from "../utils/validation";
+import { validGoal, validUser } from "../utils/validation";
 import {
   createGoalDb,
   deleteGoalDb,
@@ -95,7 +95,7 @@ export async function getGoalById(req: Request, res: Response) {
       return res.status(404).json({ error: "Goal not found." });
     }
 
-    return res.status(201).json(goal[0]);
+    return res.status(200).json(goal[0]);
   } catch (error) {
     console.error("Error fetching goal:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -132,26 +132,24 @@ export async function updateGoal(req: Request, res: Response) {
     const goalId: SelectGoal["id"] = parseInt(req.params.goalId, 10);
 
     if (isNaN(goalId)) {
-      return res.status(400).json({ error: "Invalid goal ID." });
+      return res.status(400).json({ error: "Invalid goal id." });
     }
 
-    const existingGoal = await getGoalByIdDb(goalId);
-    if (!existingGoal || existingGoal.length === 0) {
-      return res
-        .status(404)
-        .json({ error: `Goal not found for goalId=${goalId}` });
+    const existingGoalErrors: string[] = await validGoal(goalId);
+    if (existingGoalErrors.length > 0) {
+      res.status(400).json({ error: existingGoalErrors });
     }
 
     const goalData: Partial<Omit<SelectGoal, "id">> = req.body;
 
     const validationErrors = validateGoal(goalData as InsertGoal);
     if (validationErrors.length > 0) {
-      return res.status(400).json({ errors: validationErrors });
+      return res.status(400).json({ error: validationErrors });
     }
 
     await updateGoalDb(goalId, goalData);
 
-    return res.status(200).json({ message: "Goal updated successfully." });
+    return res.status(201).json({ message: "Goal updated successfully." });
   } catch (error) {
     console.error("Error updating goal:", error);
     return res.status(500).json({ error: "Internal server error." });
@@ -166,10 +164,9 @@ export async function deleteGoal(req: Request, res: Response) {
       return res.status(400).json({ error: "Invalid goalId" });
     }
 
-    const goal = await getGoalByIdDb(id);
-
-    if (goal?.length === 0) {
-      return res.status(400).json({ error: `No goal with goalId=${id}` });
+    const existingGoalErrors: string[] = await validGoal(id);
+    if (existingGoalErrors.length > 0) {
+      return res.status(404).json({ error: existingGoalErrors });
     }
 
     await deleteGoalDb(id);

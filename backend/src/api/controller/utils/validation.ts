@@ -1,11 +1,15 @@
 import { getMealByIdDb } from "../../database/queries/food/meal";
 import { getMealProductByIdDb } from "../../database/queries/food/mealProduct";
 import { getProductByIdDb } from "../../database/queries/food/product";
+import { getGoalByIdDb } from "../../database/queries/user/goal";
+import { getProfileByIdDb } from "../../database/queries/user/profile";
 import { getUserByIdDb } from "../../database/queries/user/user";
 import {
+  SelectGoal,
   SelectMeal,
   SelectMealProduct,
   SelectProduct,
+  SelectProfile,
   SelectUser,
 } from "../../database/schema";
 
@@ -52,6 +56,30 @@ export async function validMealProduct(
   const mealProduct = await getMealProductByIdDb(mealProductId);
   if (!mealProduct || mealProduct.length === 0) {
     errors.push(`Meal product with mealProductId=${mealProductId} not found.`);
+  }
+
+  return errors;
+}
+
+export async function validGoal(goalId: SelectGoal["id"]): Promise<string[]> {
+  const errors: string[] = [];
+
+  const goal = await getGoalByIdDb(goalId);
+  if (!goal || goal.length === 0) {
+    errors.push(`Goal with goalId=${goalId} not found.`);
+  }
+
+  return errors;
+}
+
+export async function validProfile(
+  profileId: SelectProfile["id"]
+): Promise<string[]> {
+  const errors: string[] = [];
+
+  const profile = await getProfileByIdDb(profileId);
+  if (!profile || profile.length === 0) {
+    errors.push(`Profile with profileId=${profileId} not found.`);
   }
 
   return errors;

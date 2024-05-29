@@ -104,11 +104,10 @@ export async function createUser(req: Request, res: Response) {
       return res.status(400).json({ errors });
     }
 
-    const userId: InsertUser["id"] = await createUserDb(user);
+    await createUserDb(user);
 
     return res.status(201).json({
-      id: userId,
-      message: `User created successfully with id=${userId}`,
+      message: `User created successfully`,
     });
   } catch (error) {
     console.error("Error creating user: ", error);
@@ -126,7 +125,7 @@ export async function updateUser(req: Request, res: Response) {
 
     const existingUserErrors: string[] = await validUser(id);
     if (existingUserErrors.length > 0) {
-      res.status(400).json({ error: existingUserErrors });
+      return res.status(400).json({ error: existingUserErrors });
     }
 
     const data: Partial<Omit<InsertUser, "id">> = req.body;
@@ -136,11 +135,9 @@ export async function updateUser(req: Request, res: Response) {
       return res.status(400).json({ error: errors });
     }
 
-    const updatedUserId: InsertUser["id"] = await updateUserDb(id, data);
+    await updateUserDb(id, data);
 
-    return res
-      .status(201)
-      .json({ id: updatedUserId, message: "User updated successfully" });
+    return res.status(201).json({ message: "User updated successfully" });
   } catch (error) {
     console.log("Error updating user: ", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -157,7 +154,7 @@ export async function deleteUser(req: Request, res: Response) {
 
     const existingUserErrors: string[] = await validUser(id);
     if (existingUserErrors.length > 0) {
-      return res.status(404).json({ validationErrors: existingUserErrors });
+      return res.status(404).json({ error: existingUserErrors });
     }
 
     await deleteUserDb(id);
