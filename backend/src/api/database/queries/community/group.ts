@@ -5,7 +5,6 @@ import {
   SelectGroup,
   SelectUser,
   groupsTable,
-  usersTable,
   usersToGroupsTable,
 } from "../../schema";
 
@@ -23,6 +22,21 @@ export async function addUserToGroupDb(
   groupId: SelectGroup["id"]
 ) {
   await db.insert(usersToGroupsTable).values({ userId, groupId });
+}
+
+export async function removeUserFromGroupDb(
+  userId: SelectUser["id"],
+  groupId: SelectGroup["id"]
+) {
+  const managerId: SelectUser["id"] = (await getGroupByIdDb(groupId))[0]
+    .manager;
+  if (managerId === userId) {
+    await deleteGroupDb(groupId);
+  } else {
+    await db
+      .delete(usersToGroupsTable)
+      .where(eq(usersToGroupsTable.userId, userId));
+  }
 }
 
 export async function getGroupsDb(): Promise<SelectGroup[]> {
@@ -45,11 +59,11 @@ export async function getGroupsByManagerIdDb(
 export async function getGroupsByUserIdDb(
   userId: SelectUser["id"]
 ): Promise<SelectGroup[]> {
-  const users = db.query.usersTable.findMany({
+  const result = await db.query.groupsTable.findMany({
     columns: {},
-    where: eq(usersTable.id, userId),
     with: {
       usersToGroups: {
+        where: eq(usersToGroupsTable.userId, userId),
         columns: {},
         with: {
           group: true,
@@ -58,8 +72,8 @@ export async function getGroupsByUserIdDb(
     },
   });
 
-  const groups: SelectGroup[] = (await users).flatMap((user) =>
-    user.usersToGroups.map((userToGroup) => userToGroup.group)
+  const groups: SelectGroup[] = result.flatMap((groupResult) =>
+    groupResult.usersToGroups.map((userToGroup) => userToGroup.group)
   );
 
   return groups;
@@ -81,4 +95,27 @@ export async function updateGroupDb(
 
 export async function deleteGroupDb(id: SelectGroup["id"]) {
   await db.delete(groupsTable).where(eq(groupsTable.id, id));
+}
+
+export async function getUsersFromGroupDb(
+  groupId: SelectGroup["id"]
+): Promise<SelectUser[]> {
+  const result = await db.query.usersTable.findMany({
+    columns: {},
+    with: {
+      usersToGroups: {
+        where: eq(usersToGroupsTable.groupId, groupId),
+        columns: {},
+        with: {
+          user: true,
+        },
+      },
+    },
+  });
+
+  const users: SelectUser[] = result.flatMap((userResult) =>
+    userResult.usersToGroups.map((userToGroup) => userToGroup.user)
+  );
+
+  return users;
 }

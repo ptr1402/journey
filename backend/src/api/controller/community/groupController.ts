@@ -1,7 +1,13 @@
 import { type Request, type Response } from "express";
-import { InsertGroup, SelectGroup } from "../../database/schema";
+import {
+  InsertGroup,
+  InsertUser,
+  SelectGroup,
+  SelectUser,
+} from "../../database/schema";
 import { validGroup, validUser } from "../utils/validation";
 import {
+  addUserToGroupDb,
   createGroupDb,
   deleteGroupDb,
   getGroupByIdDb,
@@ -9,6 +15,8 @@ import {
   getGroupsByNameDb,
   getGroupsByUserIdDb,
   getGroupsDb,
+  getUsersFromGroupDb,
+  removeUserFromGroupDb,
   updateGroupDb,
 } from "../../database/queries/community/group";
 
@@ -146,6 +154,26 @@ export async function updateGroup(req: Request, res: Response) {
       return res.status(201).json({ message: "No data to update." });
     }
 
+    if (data.manager) {
+      if (!Number.isInteger(data.manager)) {
+        return res
+          .status(400)
+          .json({ error: "The manager id has to be an integer." });
+      }
+
+      const existingUserErrors: string[] = await validUser(data.manager);
+      if (existingUserErrors.length > 0) {
+        return res.status(404).json({ error: existingUserErrors });
+      }
+
+      const currentUsers: SelectUser[] = await getUsersFromGroupDb(id);
+      if (currentUsers.findIndex((user) => user.id === data.manager) === -1) {
+        return res.status(404).json({
+          error: `User with userId=${data.manager} is not part of this group.`,
+        });
+      }
+    }
+
     const validationErrors: string[] = validateGroup(data as InsertGroup);
     if (validationErrors.length > 0) {
       return res.status(400).json({ error: validationErrors });
@@ -185,21 +213,103 @@ export async function deleteGroup(req: Request, res: Response) {
 }
 
 export async function getGroupUsers(req: Request, res: Response) {
-  console.log(req.params);
-  res.send("Get group users");
-}
+  const id: SelectGroup["id"] = parseInt(req.params.groupId, 10);
 
-export async function getGroupManager(req: Request, res: Response) {
-  console.log(req.params);
-  res.send("Get group manager");
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "Invalid groupId." });
+  }
+
+  const existingGroupErrors: string[] = await validGroup(id);
+  if (existingGroupErrors.length > 0) {
+    return res.status(404).json({ error: existingGroupErrors });
+  }
+
+  try {
+    const usersFromGroup = await getUsersFromGroupDb(id);
+    return res.status(200).json(usersFromGroup);
+  } catch (error) {
+    console.error(`Error fetching group with id=${id}`, error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 }
 
 export async function addUserToGroup(req: Request, res: Response) {
-  console.log(req.params);
-  res.send("Add user to group");
+  const groupId: SelectGroup["id"] = parseInt(req.params.groupId);
+  const userId: InsertUser["id"] = req.body.userId;
+
+  if (isNaN(groupId)) {
+    return res.status(400).json({ error: "Invalid groupId." });
+  }
+
+  const existingGroupErrors: string[] = await validGroup(groupId);
+  if (existingGroupErrors.length > 0) {
+    return res.status(404).json({ error: existingGroupErrors });
+  }
+
+  if (!userId) {
+    return res.status(400).json({ error: "No user provided." });
+  }
+
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: "The userId has to be an integer." });
+  }
+
+  const existingUserErrors: string[] = await validUser(userId);
+  if (existingUserErrors.length > 0) {
+    return res.status(404).json({ error: existingUserErrors });
+  }
+
+  try {
+    await addUserToGroupDb(userId, groupId);
+    return res
+      .status(201)
+      .json({ message: "User added to group successfully." });
+  } catch (error) {
+    console.error(
+      `Error adding user with id=${userId} to group with groupId=${groupId}`,
+      error
+    );
+    return res.status(500).json({ error: "Internal server error." });
+  }
 }
 
 export async function deleteUserFromGroup(req: Request, res: Response) {
-  console.log(req.params);
-  res.send("Delete user from group");
+  const groupId: SelectGroup["id"] = parseInt(req.params.groupId, 10);
+  const userId: SelectUser["id"] = req.body.userId;
+
+  if (isNaN(groupId)) {
+    return res.status(400).json({ error: "Invalid groupId." });
+  }
+
+  const existingGroupErrors: string[] = await validGroup(groupId);
+  if (existingGroupErrors.length > 0) {
+    return res.status(404).json({ error: existingGroupErrors });
+  }
+
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: "The userId has to be an integer." });
+  }
+
+  const existingUserErrors: string[] = await validUser(userId);
+  if (existingUserErrors.length > 0) {
+    return res.status(404).json({ error: existingUserErrors });
+  }
+
+  const usersFromGroup: SelectUser[] = await getUsersFromGroupDb(groupId);
+  if (usersFromGroup.findIndex((user) => user.id === userId) === -1) {
+    return res.status(404).json({
+      error: `User with userId=${userId} is not part of this group.`,
+    });
+  }
+
+  try {
+    await removeUserFromGroupDb(userId, groupId);
+    return res.status(200).json({ message: "User removed from group." });
+  } catch (error) {
+    console.error(
+      `Error deleting user with id=${userId} from group with groupId=${groupId}`,
+      error
+    );
+    return res.status(500).json({ error: "Internal server error." });
+  }
 }
