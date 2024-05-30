@@ -71,7 +71,7 @@ export async function createMealDb(meal: InsertMeal) {
 
 export async function updateMealDb(
   id: SelectMeal["id"],
-  data: Partial<Omit<SelectUser, "id">>
+  data: Partial<Omit<SelectMeal, "id">>
 ) {
   await db.update(mealsTable).set(data).where(eq(mealsTable.id, id));
 }

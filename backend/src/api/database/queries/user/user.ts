@@ -36,6 +36,38 @@ export async function getUserByIdDb(
     .limit(1);
 }
 
+export async function getUserByEmailDb(
+  email: SelectUser["email"]
+): Promise<Partial<Omit<SelectUser, "password">>[]> {
+  return db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      username: usersTable.username,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+}
+
+export async function getUserByUsernameDb(
+  username: SelectUser["username"]
+): Promise<Partial<Omit<SelectUser, "password">>[]> {
+  return db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      username: usersTable.username,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.username, username))
+    .limit(1);
+}
+
 export async function updateUserDb(
   id: SelectUser["id"],
   data: Partial<Omit<SelectUser, "id">>
