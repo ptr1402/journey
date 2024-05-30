@@ -141,6 +141,9 @@ export async function updateGoal(req: Request, res: Response) {
     }
 
     const goalData: Partial<Omit<SelectGoal, "id">> = req.body;
+    if (!goalData || Object.keys(goalData).length === 0) {
+      return res.status(201).json({ message: "No data to update" });
+    }
 
     const validationErrors = validateGoal(goalData as InsertGoal);
     if (validationErrors.length > 0) {

@@ -125,10 +125,13 @@ export async function updateUser(req: Request, res: Response) {
 
     const existingUserErrors: string[] = await validUser(id);
     if (existingUserErrors.length > 0) {
-      return res.status(400).json({ error: existingUserErrors });
+      return res.status(404).json({ error: existingUserErrors });
     }
 
     const data: Partial<Omit<InsertUser, "id">> = req.body;
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(201).json({ message: "No data to update" });
+    }
 
     const errors: string[] = await validateUser(data as InsertUser);
     if (errors.length > 0) {

@@ -158,10 +158,13 @@ export async function updateMealProduct(req: Request, res: Response) {
       mealProductId
     );
     if (existingMealProductErrors.length > 0) {
-      return res.status(400).json({ existingMealProductErrors });
+      return res.status(404).json({ error: existingMealProductErrors });
     }
 
     const mealProductData: Partial<Omit<SelectMealProduct, "id">> = req.body;
+    if (!mealProductData || Object.keys(mealProductData).length === 0) {
+      return res.status(201).json({ message: "No data to update" });
+    }
 
     if (mealProductData.mealId) {
       if (!Number.isInteger(mealProductData.mealId)) {
@@ -170,7 +173,7 @@ export async function updateMealProduct(req: Request, res: Response) {
       const mealErrors = await validMeal(mealProductData.mealId);
 
       if (mealErrors.length > 0) {
-        return res.status(400).json({ errors: mealErrors });
+        return res.status(404).json({ error: mealErrors });
       }
     }
 
@@ -181,7 +184,7 @@ export async function updateMealProduct(req: Request, res: Response) {
       const productErrors = await validProduct(mealProductData.productId);
 
       if (productErrors.length > 0) {
-        return res.status(400).json({ errors: productErrors });
+        return res.status(404).json({ error: productErrors });
       }
     }
 
@@ -195,7 +198,7 @@ export async function updateMealProduct(req: Request, res: Response) {
     await updateMealProductDb(mealProductId, mealProductData);
 
     return res
-      .status(200)
+      .status(201)
       .json({ message: "Meal product data updated successfully." });
   } catch (error) {
     console.error("Error updating mealProduct: ", error);
@@ -213,7 +216,7 @@ export async function deleteMealProduct(req: Request, res: Response) {
 
     const existingMealProductErrors: string[] = await validMealProduct(id);
     if (existingMealProductErrors.length > 0) {
-      return res.status(400).json({ error: existingMealProductErrors });
+      return res.status(404).json({ error: existingMealProductErrors });
     }
 
     await deleteMealProductDb(id);

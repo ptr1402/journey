@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { InsertMeal, SelectMeal } from "../../database/schema";
-import { validUser } from "../utils/validation";
+import { validMeal, validUser } from "../utils/validation";
 import {
   createMealDb,
   deleteMealDb,
@@ -115,25 +115,22 @@ export async function updateMeal(req: Request, res: Response) {
       return res.status(400).json({ error: "Invalid meal ID." });
     }
 
-    const existingMeal = await getMealByIdDb(mealId);
-    if (!existingMeal || existingMeal.length === 0) {
-      return res
-        .status(404)
-        .json({ error: `Meal not found for mealId=${mealId}` });
+    const existingMealErrors: string[] = await validMeal(mealId);
+    if (existingMealErrors.length > 0) {
+      return res.status(404).json({ error: existingMealErrors });
     }
 
-    const mealData: Partial<Omit<SelectMeal, "id">> = req.body;
-
-    if (!mealData || Object.keys(mealData).length === 0) {
+    const data: Partial<Omit<SelectMeal, "id">> = req.body;
+    if (!data || Object.keys(data).length === 0) {
       return res.status(201).json({ message: "No data to update" });
     }
 
-    const validationErrors = validateMeal(mealData as InsertMeal);
+    const validationErrors = validateMeal(data as InsertMeal);
     if (validationErrors.length > 0) {
-      return res.status(400).json({ errors: validationErrors });
+      return res.status(400).json({ error: validationErrors });
     }
 
-    await updateMealDb(mealId, mealData);
+    await updateMealDb(mealId, data);
 
     return res.status(200).json({ message: "Meal updated successfully." });
   } catch (error) {
@@ -150,10 +147,9 @@ export async function deleteMeal(req: Request, res: Response) {
       return res.status(400).json({ error: "Invalid mealId." });
     }
 
-    const meal = await getMealByIdDb(id);
-
-    if (meal?.length === 0) {
-      return res.status(400).json({ error: `No meal with  mealdId=${id}` });
+    const existingMealErrors: string[] = await validMeal(id);
+    if (existingMealErrors.length > 0) {
+      return res.status(404).json({ error: existingMealErrors });
     }
 
     await deleteMealDb(id);

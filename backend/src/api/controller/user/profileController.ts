@@ -131,6 +131,9 @@ export async function updateProfile(req: Request, res: Response) {
     }
 
     const profileData: Partial<Omit<SelectProfile, "id">> = req.body;
+    if (!profileData || Object.keys(profileData).length === 0) {
+      return res.status(201).json({ message: "No data to update" });
+    }
 
     const validationErrors = validateProfile(profileData as InsertProfile);
     if (validationErrors.length > 0) {

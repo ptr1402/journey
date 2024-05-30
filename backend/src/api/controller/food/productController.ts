@@ -136,6 +136,10 @@ export async function updateProduct(req: Request, res: Response) {
     }
 
     const data: Partial<Omit<SelectProduct, "id">> = req.body;
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(201).json({ message: "No data to update" });
+    }
+
     const validationErrors: string[] = validateProduct(data as InsertProduct);
 
     if (validationErrors.length > 0) {
