@@ -137,7 +137,7 @@ export async function updateProfile(req: Request, res: Response) {
 
     const validationErrors = validateProfile(profileData as InsertProfile);
     if (validationErrors.length > 0) {
-      return res.status(400).json({ errors: validationErrors });
+      return res.status(400).json({ error: validationErrors });
     }
 
     await updateProfileDb(profileId, profileData);
