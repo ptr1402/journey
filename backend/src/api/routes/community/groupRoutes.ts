@@ -5,7 +5,6 @@ import {
   deleteGroup,
   deleteUserFromGroup,
   getGroupById,
-  getGroupManager,
   getGroupUsers,
   getGroups,
   updateGroup,
@@ -26,5 +25,3 @@ groupRouter
   .get(getGroupUsers)
   .post(addUserToGroup)
   .delete(deleteUserFromGroup);
-
-groupRouter.get("/:groupId/manager", getGroupManager);

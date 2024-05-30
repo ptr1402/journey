@@ -65,7 +65,7 @@ export async function getProducts(req: Request, res: Response) {
     return res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching products: ", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -73,21 +73,21 @@ export async function getProductById(req: Request, res: Response) {
   const id: SelectProduct["id"] = parseInt(req.params.productId, 10);
 
   if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid productId." });
+    return res.status(400).json({ error: "Invalid productId." });
   }
 
   try {
     const result = await getProductByIdDb(id);
 
     if (result.length === 0) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     const product = result[0];
-    return res.status(201).json(product);
+    return res.status(200).json(product);
   } catch (error) {
-    console.error(`Error fetching product with id= ${id}`, error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error(`Error fetching product with id=${id}`, error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -127,7 +127,7 @@ export async function updateProduct(req: Request, res: Response) {
   try {
     const id: SelectProduct["id"] = parseInt(req.params.productId, 10);
     if (isNaN(id)) {
-      return res.status(400).send("Invalid productId");
+      return res.status(400).json({ error: "Invalid productId" });
     }
 
     const existingProductErrors: string[] = await validProduct(id);
@@ -141,17 +141,16 @@ export async function updateProduct(req: Request, res: Response) {
     }
 
     const validationErrors: string[] = validateProduct(data as InsertProduct);
-
     if (validationErrors.length > 0) {
       return res.status(400).json({ error: validationErrors });
     }
 
     await updateProductDb(id, data);
 
-    return res.status(200).send("Product updated successfully");
+    return res.status(201).json({ message: "Product updated successfully" });
   } catch (error) {
     console.error("Error updating product: ", error);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 

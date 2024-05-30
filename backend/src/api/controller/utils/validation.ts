@@ -1,3 +1,4 @@
+import { getGroupByIdDb } from "../../database/queries/community/group";
 import { getMealByIdDb } from "../../database/queries/food/meal";
 import { getMealProductByIdDb } from "../../database/queries/food/mealProduct";
 import { getProductByIdDb } from "../../database/queries/food/product";
@@ -6,6 +7,7 @@ import { getProfileByIdDb } from "../../database/queries/user/profile";
 import { getUserByIdDb } from "../../database/queries/user/user";
 import {
   SelectGoal,
+  SelectGroup,
   SelectMeal,
   SelectMealProduct,
   SelectProduct,
@@ -80,6 +82,19 @@ export async function validProfile(
   const profile = await getProfileByIdDb(profileId);
   if (!profile || profile.length === 0) {
     errors.push(`Profile with profileId=${profileId} not found.`);
+  }
+
+  return errors;
+}
+
+export async function validGroup(
+  groupId: SelectGroup["id"]
+): Promise<string[]> {
+  const errors: string[] = [];
+
+  const group = await getGroupByIdDb(groupId);
+  if (!group || group.length === 0) {
+    errors.push(`Group with groupId=${groupId} not found.`);
   }
 
   return errors;

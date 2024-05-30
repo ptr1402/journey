@@ -99,7 +99,6 @@ export async function createUser(req: Request, res: Response) {
     }
 
     const errors: string[] = await validateUser(user);
-
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
